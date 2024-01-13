@@ -1,4 +1,4 @@
-
+# THis is starter django pack for sqs celery drf basic auth and s3\cloudfront for media
 
 1. Before installing requirements, run command:
 `sudo apt-get install libcurl4-openssl-dev libssl-dev`

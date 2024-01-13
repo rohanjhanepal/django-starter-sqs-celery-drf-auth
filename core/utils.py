@@ -61,35 +61,6 @@ def getObjectClassesS3():
     
     return (choosen , choosen_image)
 
-def getNepaliDigits():
-    CHARACTERS = ['yna', 'taamatar', 'thaa', 'daa', 'dhaa', 'adna', 'tabala', 'tha', 'da', 'dha', 'ka', 'na', 'pa', 'pha', 'ba', 'bha', 'ma', 'yaw', 'ra', 'la', 'waw', 'kha', 'motosaw', 'petchiryakha', 'patalosaw', 'ha', 'chhya', 'tra', 'gya', 'ga', 'gha', 'kna', 'cha', 'chha', 'ja', 'jha']
-    DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-    
-    path = os.path.join(settings.BASE_DIR , settings.PUZZLE_FOLDER , settings.NEPALI_HANDWRITTEN_FOLDER)
-    lists = os.listdir(path)
-    choosen = choice(lists)
-    if 'character' in choosen:
-        letter_data = choosen.split('_')[2]
-    if 'digit' in choosen:
-        letter_data = choosen.split('_')[1]
-
-    lists = os.listdir(os.path.join(settings.BASE_DIR , settings.PUZZLE_FOLDER , settings.NEPALI_HANDWRITTEN_FOLDER ,choosen ))
-    choosen_image = choice(lists)
-    user_choices = list()
-    for i in range(0,4):
-        ch = choice(CHARACTERS)
-        if ch not in user_choices:
-            user_choices.append(ch)
-            continue
-        ch = choice(CHARACTERS)
-        user_choices.append(ch)
-
-    if letter_data not in user_choices: #REMOVE AFTER ADDING UNLABBELED DATA
-        user_choices.append(letter_data)
-
-    url = f"/{settings.MEDIA}/{settings.SOLVE}/{settings.NEPALI_HANDWRITTEN_FOLDER}/{choosen}/{choosen_image}"
-    return (user_choices , url)
-
 def getObjectClasses():
     path = os.path.join(settings.BASE_DIR , settings.PUZZLE_FOLDER , settings.OBJECT_CLASSES_FOLDER)
     lists = os.listdir(path)
@@ -113,60 +84,6 @@ def getObjectClasses():
 #                                        Params={'Bucket': 'labelappdata', 'Key': 'dog/1.jpg','ResponseContentDisposition': 'attachment'},
 #                                        ExpiresIn=3600)
 
-def get_ticket_number():
-    return ''.join(random.choices('0123456789abcdef', k=8))
 
 
-def get_length_of_queue():
 
-    response = settings.SQS_CLIENT.get_queue_attributes(
-        QueueUrl=settings.DATA_QUEUE_URL,
-        AttributeNames=['ApproximateNumberOfMessages']
-        )
-    message_count = int(response['Attributes']['ApproximateNumberOfMessages'])
-
-    return message_count
-
-def push_to_queue(data):
-    
-    message_body = json.dumps(data)
-    response = settings.SQS_CLIENT.send_message(
-        QueueUrl=settings.DATA_QUEUE_URL,
-        MessageBody=message_body,
-        MessageGroupId= settings.MESSAGE_GROUP_ID
-    )
-     
-
-    # response = sqs_client.send_message(
-    #     QueueUrl=DATA_QUEUE_URL,
-    #     MessageBody='one'
-    # )
-    # response = sqs_client.receive_message(
-    #     QueueUrl=DATA_QUEUE_URL,
-    #     MaxNumberOfMessages=1,
-    # )
-    # response = sqs_client.get_queue_attributes(
-    #     QueueUrl=DATA_QUEUE_URL,
-    #     AttributeNames=['ApproximateNumberOfMessages']
-    #     )
-    return True
-
-def pop_from_queue():
-    
-    response = settings.SQS_CLIENT.receive_message(
-        QueueUrl=settings.DATA_QUEUE_URL,
-        MaxNumberOfMessages=1,
-    )
-
-    messages = response.get('Messages')
-    if messages:
-        message = messages[0]
-        body = json.loads(message['Body'])
-        settings.SQS_CLIENT.delete_message(
-            QueueUrl=settings.DATA_QUEUE_URL,
-            ReceiptHandle=message['ReceiptHandle']
-        )
-        return body
-    
-    return None
-    
